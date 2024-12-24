@@ -36,6 +36,11 @@
       logArea.scrollTop = logArea.scrollHeight;
     }
 
+    let devices = await navigator.hid.getDevices();
+    devices.forEach((device) => {
+      console.log(`HID: ${device.productName}`);
+    });
+
     document.getElementById('connect').addEventListener('click', async () => {
       try {
         // Request access to a HID device
