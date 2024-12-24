@@ -39,7 +39,7 @@
     document.getElementById('connect').addEventListener('click', async () => {
       try {
         // Request access to a HID device
-        const devices = await navigator.hid.requestDevice();
+        const devices = await navigator.hid.requestDevice({ filters: [] });
 
         if (devices.length > 0) {
           device = devices[0];
