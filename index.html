@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WebHID Printer Debug</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    button {
+      margin: 5px 0;
+      padding: 10px;
+    }
+    textarea {
+      width: 100%;
+      height: 100px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>WebHID Printer Debug Tool</h1>
+  <button id="connect">Connect to Printer</button>
+  <button id="send" disabled>Send Test Command</button>
+  <textarea id="log" readonly placeholder="Logs will appear here..."></textarea>
+
+  <script>
+    let device;
+
+    const logArea = document.getElementById('log');
+
+    function log(message) {
+      logArea.value += message + '\n';
+      logArea.scrollTop = logArea.scrollHeight;
+    }
+
+    document.getElementById('connect').addEventListener('click', async () => {
+      try {
+        // Request access to a HID device
+        const devices = await navigator.hid.requestDevice({
+          filters: [{ vendorId: 0x1234 }] // Replace with your printer's Vendor ID
+        });
+
+        if (devices.length > 0) {
+          device = devices[0];
+          await device.open();
+          log(`Connected to device: ${device.productName}`);
+          document.getElementById('send').disabled = false;
+        } else {
+          log('No devices selected.');
+        }
+      } catch (error) {
+        log(`Error: ${error.message}`);
+      }
+    });
+
+    document.getElementById('send').addEventListener('click', async () => {
+      if (!device || !device.opened) {
+        log('Device is not connected.');
+        return;
+      }
+
+      try {
+        // Example ESC/POS command: Reset printer
+        const command = new Uint8Array([0x1B, 0x40]); // ESC @
+        await device.sendReport(0, command);
+        log('Test command sent: ESC @');
+      } catch (error) {
+        log(`Error: ${error.message}`);
+      }
+    });
+
+    navigator.hid.addEventListener('disconnect', (event) => {
+      if (event.device === device) {
+        log('Device disconnected.');
+        device = null;
+        document.getElementById('send').disabled = true;
+      }
+    });
+  </script>
+</body>
+</html>
