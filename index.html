@@ -40,7 +40,7 @@
       try {
         // Request access to a HID device
         const devices = await navigator.hid.requestDevice({
-          filters: [{ vendorId: 0x1234 }] // Replace with your printer's Vendor ID
+          filters: [{ vendorId: 0x28E9 }] // Replace with your printer's Vendor ID
         });
 
         if (devices.length > 0) {
